@@ -1,0 +1,19 @@
+[
+    {
+        "subscriber_id": "sample_mobility_bpp",
+        "status": "SUBSCRIBED",
+        "ukId": "111-222-333",
+        "subscriber_url": "http://localhost:3010",
+        "country": "IND",
+        "domain": "mobility",
+        "valid_from": "2022-08-08T19:30:58.921Z",
+        "valid_until": "2032-08-08T11:39:58.921Z",
+        "type": "BPP",
+        "signing_public_key": "",
+        "encr_public_key": "",
+        "created": "2022-08-08T16:19:25.717Z",
+        "updated": "2022-08-08T16:19:25.717Z",
+        "br_id": "111-222-333",
+        "city": "std:080,std:011,std:0422,std:0364,std:0522,std:0755,std:044,std:022,std:020,std:040,std:0145"
+    }
+]
