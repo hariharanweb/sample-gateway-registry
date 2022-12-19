@@ -3,7 +3,7 @@
         "subscriber_id": "sample_mobility_bpp",
         "status": "SUBSCRIBED",
         "ukId": "111-222-333",
-        "subscriber_url": "http://localhost:3010",
+        "subscriber_url": "http://mobility-sample-bpp:3010",
         "country": "IND",
         "domain": "mobility",
         "valid_from": "2022-08-08T19:30:58.921Z",
