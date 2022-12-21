@@ -20,4 +20,5 @@ app.post('/on_search', OnSearchController.onSearch);
 
 app.listen(port, () => {
   logger.info(`Gateway app listening on port ${port}`);
+
 });
