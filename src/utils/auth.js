@@ -20,9 +20,21 @@ const Auth = (req) => {
 
   return verify(msg,publicKey,signature);
 };
-
+ 
 const getSignature=(headers)=>{
-    return headers["x-gateway-authorization"];
+  const authorizationHeader = headers["x-gateway-authorization"];
+  console.log("THE authorization header is " + authorizationHeader);
+  const parts = authorizationHeader.split(",");
+  console.log("The parts are..." + parts )
+  var dict = {};
+  for(let i = 0; i< parts.length ; i++){
+    var test = parts[i].split("=");
+    dict[test[0]] = test[1]
+  }
+  console.log(dict);
+  const leng = dict['signature'].length;
+  console.log(dict['signature'].slice(1,leng));
+  return dict['signature'].slice(1,leng);
 }
 
 const verify=(msg,publicKey,signature)=>{
