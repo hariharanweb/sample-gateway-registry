@@ -1,4 +1,5 @@
 import express from 'express';
+import LookupController from './controllers/LookupController.js';
 import OnSearchController from './controllers/OnSearchController.js';
 import SearchController from './controllers/SearchController.js';
 import LoggingService from './services/LoggingService.js';
@@ -17,6 +18,8 @@ app.get('/', (req, res) => {
 
 app.post('/search', SearchController.search);
 app.post('/on_search', OnSearchController.onSearch);
+
+app.post('/lookup', LookupController.lookup);
 
 app.listen(port, () => {
   logger.info(`Gateway app listening on port ${port}`);

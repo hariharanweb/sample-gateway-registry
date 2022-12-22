@@ -5,6 +5,9 @@ const getRegisteredSellerApps = (context) => {
   const matchingSellerApps = _.filter(registry, { domain: context.domain });
   return matchingSellerApps;
 };
+
+const getRegistry = (filter) => _.filter(registry, filter);
 export default {
   getRegisteredSellerApps,
+  getRegistry,
 };
