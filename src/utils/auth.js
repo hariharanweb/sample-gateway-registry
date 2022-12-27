@@ -1,59 +1,112 @@
 // Verification
-import crypto from "crypto";
-import fs from "fs";
-import path from "path";
-import LoggingService from "../services/LoggingService";
+import crypto from 'crypto';
+import sodium from 'libsodium-wrappers';
+import registry from '../registry/registry.json';
+import LoggingService from '../services/LoggingService';
 
 const logger = LoggingService.getLogger();
 
-const Auth = (req) => {
+const getSignature = (headers) => {
+  const authorizationHeader = headers['x-gateway-authorization'];
+  logger.debug(`THE authorization header is ${authorizationHeader}`);
+  const parts = authorizationHeader.split(',');
+  logger.debug(`The parts are...${parts}`);
+  if (!parts || Object.keys(parts).length === 0) {
+    throw (new Error('Header parsing failed'));
+  }
+  const dict = {};
+  for (let i = 0; i < parts.length; i++) {
+    const test = parts[i].split('=');
+    dict[test[0]] = test[1];
+  }
+  logger.debug(dict);
+  const leng = dict.signature.length;
+  logger.debug(dict.signature.slice(1, leng));
+
+  return dict.signature.slice(1, leng);
+};
+
+const getExpires = (headers) => {
+  const authorizationHeader = headers['x-gateway-authorization'];
+  logger.debug(`THE authorization header is ${authorizationHeader}`);
+  const parts = authorizationHeader.split(',');
+  logger.debug(`The parts are...${parts}`);
+  if (!parts || Object.keys(parts).length === 0) {
+    throw (new Error('Header parsing failed'));
+  }
+  const dict = {};
+  for (let i = 0; i < parts.length; i++) {
+    const test = parts[i].split('=');
+    dict[test[0]] = test[1];
+  }
+  logger.debug(dict);
+  const leng = dict.expires.length;
+  logger.debug(dict.expires.slice(1, leng));
+
+  return dict.expires.slice(1, leng);
+};
+
+const getCreated = (headers) => {
+  const authorizationHeader = headers['x-gateway-authorization'];
+  logger.debug(`THE authorization header is ${authorizationHeader}`);
+  const parts = authorizationHeader.split(',');
+  logger.debug(`The parts are...${parts}`);
+  if (!parts || Object.keys(parts).length === 0) {
+    throw (new Error('Header parsing failed'));
+  }
+  const dict = {};
+  for (let i = 0; i < parts.length; i++) {
+    const test = parts[i].split('=');
+    dict[test[0]] = test[1];
+  }
+  logger.debug(dict);
+  const leng = dict.created.length;
+  logger.debug(dict.created.slice(1, leng));
+
+  return dict.created.slice(1, leng);
+};
+
+const verify = (msg, publicKey, signature) => {
+  const verification = sodium.crypto_sign_verify_detached(
+    sodium.from_base64(signature, sodium.base64_variants.ORIGINAL),
+    msg,
+    sodium.from_base64(publicKey, sodium.base64_variants.ORIGINAL),
+  );
+  logger.debug(`The signature verification is ${verification}`);
+  return verification;
+};
+const getPublicKey = () => {
+  const bapSubscriber = registry.filter(
+    (entry) => entry.subscriber_id === 'sample_mobility_bap',
+  );
+  const publicKey = `${bapSubscriber.signing_public_key}`;
+  return publicKey;
+};
+
+const createSigningString = async (body, created, expires) => {
+  await sodium.ready;
+  const digest = sodium.crypto_generichash(64, sodium.from_string(body));
+  const digestBase64 = sodium.to_base64(digest, sodium.base64_variants.ORIGINAL);
+  const signingString = `(created): ${created}
+(expires): ${expires}
+digest: BLAKE-512=${digestBase64}`;
+  return signingString;
+};
+
+const authorize = (req) => {
   logger.debug(`The request header is ${JSON.stringify(req.headers)}`);
-
   const signature = getSignature(req.headers);
-
-  if (typeof signature === "undefined") {
+  const created = getCreated(req.headers);
+  const expires = getExpires(req.headers);
+  if (typeof signature === 'undefined') {
     return false;
   }
   const msg = JSON.stringify(req.body);
-
   const publicKey = getPublicKey();
-
-  return verify(msg,publicKey,signature);
+  const signingString = createSigningString(msg, created, expires);
+  return verify(signingString, publicKey, signature);
 };
- 
-const getSignature=(headers)=>{
-  const authorizationHeader = headers["x-gateway-authorization"];
-  console.log("THE authorization header is " + authorizationHeader);
-  const parts = authorizationHeader.split(",");
-  console.log("The parts are..." + parts )
-  var dict = {};
-  for(let i = 0; i< parts.length ; i++){
-    var test = parts[i].split("=");
-    dict[test[0]] = test[1]
-  }
-  console.log(dict);
-  const leng = dict['signature'].length;
-  console.log(dict['signature'].slice(1,leng));
-  return dict['signature'].slice(1,leng);
-}
-
-const verify=(msg,publicKey,signature)=>{
-    let verification = crypto.verify(
-        null,
-        Buffer.from(msg),
-        publicKey,
-        Buffer.from(signature, "base64")
-      );
-    logger.debug(`The signature verification is ${verification}`); 
-    return verification;
-}
-const getPublicKey= () => {
-    return fs.readFileSync(
-        path.resolve("./src/CertificateBAP/publicKey.txt"),
-        "utf-8"
-      );
-}
 
 export default {
-  Auth,
+  authorize,
 };

@@ -11,7 +11,7 @@ const search = (req, res) => {
   const logger = LoggingService.getLogger("Search");
   logger.debug(`Search called with ${JSON.stringify(req.body)}`);
 
-  const authorization = auth.Auth(req);
+  const authorization = auth.authorize(req);
 
   if (authorization) {
     const bppSubscribers = registry.filter(
