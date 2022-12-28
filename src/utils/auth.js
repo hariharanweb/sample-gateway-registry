@@ -10,7 +10,7 @@ const getSignature = (headers) => {
   );
   const leng = authorizationHeader.signature.length;
   logger.debug(authorizationHeader.signature.slice(1, leng));
-  return header.signature.slice(1, leng);
+  return authorizationHeader.signature.slice(1, leng);
 };
 
 const getCreated = (headers) => {
@@ -28,7 +28,7 @@ const getExpires = (headers) => {
   );
   const leng = authorizationHeader.expires.length;
   logger.debug(authorizationHeader.expires.slice(1, leng));
-  return header.expires.slice(1, leng - 1);
+  return authorizationHeader.expires.slice(1, leng - 1);
 };
 
 const verify = (msg, publicKey, signature) => {
