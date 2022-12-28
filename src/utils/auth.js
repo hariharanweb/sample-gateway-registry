@@ -1,5 +1,3 @@
-// Verification
-import crypto from 'crypto';
 import sodium from 'libsodium-wrappers';
 import registry from '../registry/registry.json';
 import LoggingService from '../services/LoggingService';
@@ -41,9 +39,9 @@ const getExpires = (headers) => {
   }
   logger.debug(dict);
   const leng = dict.expires.length;
-  logger.debug(dict.expires.slice(1, leng));
+  logger.debug(dict.expires.slice(1, (leng)));
 
-  return dict.expires.slice(1, leng);
+  return dict.expires.slice(1, (leng-1));
 };
 
 const getCreated = (headers) => {
@@ -61,25 +59,25 @@ const getCreated = (headers) => {
   }
   logger.debug(dict);
   const leng = dict.created.length;
-  logger.debug(dict.created.slice(1, leng));
+  logger.debug(dict.created.slice(1, (leng-1)));
 
-  return dict.created.slice(1, leng);
+  return dict.created.slice(1, (leng-1));
 };
 
 const verify = (msg, publicKey, signature) => {
   const verification = sodium.crypto_sign_verify_detached(
-    sodium.from_base64(signature, sodium.base64_variants.ORIGINAL),
+    sodium.to_base64(signature, sodium.base64_variants.ORIGINAL),
     msg,
-    sodium.from_base64(publicKey, sodium.base64_variants.ORIGINAL),
+    sodium.to_base64(publicKey, sodium.base64_variants.ORIGINAL),
   );
-  logger.debug(`The signature verification is ${verification}`);
   return verification;
 };
 const getPublicKey = () => {
   const bapSubscriber = registry.filter(
-    (entry) => entry.subscriber_id === 'sample_mobility_bap',
+    (entry) => entry.subscriber_id === "sample_mobility_bap",
   );
-  const publicKey = `${bapSubscriber.signing_public_key}`;
+  console.log("bap subscriber " + JSON.stringify(bapSubscriber));
+  const publicKey = `${bapSubscriber[0].signing_public_key}`;
   return publicKey;
 };
 
@@ -93,7 +91,7 @@ digest: BLAKE-512=${digestBase64}`;
   return signingString;
 };
 
-const authorize = (req) => {
+const authorize = async (req) => {
   logger.debug(`The request header is ${JSON.stringify(req.headers)}`);
   const signature = getSignature(req.headers);
   const created = getCreated(req.headers);
@@ -103,7 +101,7 @@ const authorize = (req) => {
   }
   const msg = JSON.stringify(req.body);
   const publicKey = getPublicKey();
-  const signingString = createSigningString(msg, created, expires);
+  const signingString = await createSigningString(msg, created.toString(), expires.toString());
   return verify(signingString, publicKey, signature);
 };
 
