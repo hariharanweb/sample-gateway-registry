@@ -1,80 +1,48 @@
-import sodium from 'libsodium-wrappers';
-import registry from '../registry/registry.json';
-import LoggingService from '../services/LoggingService';
+import sodium from "libsodium-wrappers";
+import registry from "../registry/registry.json";
+import LoggingService from "../services/LoggingService";
 
 const logger = LoggingService.getLogger();
 
 const getSignature = (headers) => {
-  const authorizationHeader = headers['x-gateway-authorization'];
-  logger.debug(`THE authorization header is ${authorizationHeader}`);
-  const parts = authorizationHeader.split(',');
-  logger.debug(`The parts are...${parts}`);
-  if (!parts || Object.keys(parts).length === 0) {
-    throw (new Error('Header parsing failed'));
-  }
-  const dict = {};
-  for (let i = 0; i < parts.length; i++) {
-    const test = parts[i].split('=');
-    dict[test[0]] = test[1];
-  }
-  logger.debug(dict);
-  const leng = dict.signature.length;
-  logger.debug(dict.signature.slice(1, leng));
-
-  return dict.signature.slice(1, leng);
-};
-
-const getExpires = (headers) => {
-  const authorizationHeader = headers['x-gateway-authorization'];
-  logger.debug(`THE authorization header is ${authorizationHeader}`);
-  const parts = authorizationHeader.split(',');
-  logger.debug(`The parts are...${parts}`);
-  if (!parts || Object.keys(parts).length === 0) {
-    throw (new Error('Header parsing failed'));
-  }
-  const dict = {};
-  for (let i = 0; i < parts.length; i++) {
-    const test = parts[i].split('=');
-    dict[test[0]] = test[1];
-  }
-  logger.debug(dict);
-  const leng = dict.expires.length;
-  logger.debug(dict.expires.slice(1, (leng)));
-
-  return dict.expires.slice(1, (leng-1));
+  const authorizationHeader = getAuthorizationHeader(
+    headers["x-gateway-authorization"]
+  );
+  const leng = authorizationHeader.signature.length;
+  logger.debug(authorizationHeader.signature.slice(1, leng));
+  return header.signature.slice(1, leng);
 };
 
 const getCreated = (headers) => {
-  const authorizationHeader = headers['x-gateway-authorization'];
-  logger.debug(`THE authorization header is ${authorizationHeader}`);
-  const parts = authorizationHeader.split(',');
-  logger.debug(`The parts are...${parts}`);
-  if (!parts || Object.keys(parts).length === 0) {
-    throw (new Error('Header parsing failed'));
-  }
-  const dict = {};
-  for (let i = 0; i < parts.length; i++) {
-    const test = parts[i].split('=');
-    dict[test[0]] = test[1];
-  }
-  logger.debug(dict);
-  const leng = dict.created.length;
-  logger.debug(dict.created.slice(1, (leng-1)));
+  const authorizationHeader = getAuthorizationHeader(
+    headers["x-gateway-authorization"]
+  );
+  const leng = authorizationHeader.created.length;
+  logger.debug(authorizationHeader.created.slice(1, leng - 1));
+  return authorizationHeader.created.slice(1, leng - 1);
+};
 
-  return dict.created.slice(1, (leng-1));
+const getExpires = (headers) => {
+  const authorizationHeader = getAuthorizationHeader(
+    headers["x-gateway-authorization"]
+  );
+  const leng = authorizationHeader.expires.length;
+  logger.debug(authorizationHeader.expires.slice(1, leng));
+  return header.expires.slice(1, leng - 1);
 };
 
 const verify = (msg, publicKey, signature) => {
   const verification = sodium.crypto_sign_verify_detached(
     sodium.to_base64(signature, sodium.base64_variants.ORIGINAL),
     msg,
-    sodium.to_base64(publicKey, sodium.base64_variants.ORIGINAL),
+    sodium.to_base64(publicKey, sodium.base64_variants.ORIGINAL)
   );
   return verification;
 };
+
 const getPublicKey = () => {
   const bapSubscriber = registry.filter(
-    (entry) => entry.subscriber_id === "sample_mobility_bap",
+    (entry) => entry.subscriber_id === "sample_mobility_bap"
   );
   console.log("bap subscriber " + JSON.stringify(bapSubscriber));
   const publicKey = `${bapSubscriber[0].signing_public_key}`;
@@ -84,7 +52,10 @@ const getPublicKey = () => {
 const createSigningString = async (body, created, expires) => {
   await sodium.ready;
   const digest = sodium.crypto_generichash(64, sodium.from_string(body));
-  const digestBase64 = sodium.to_base64(digest, sodium.base64_variants.ORIGINAL);
+  const digestBase64 = sodium.to_base64(
+    digest,
+    sodium.base64_variants.ORIGINAL
+  );
   const signingString = `(created): ${created}
 (expires): ${expires}
 digest: BLAKE-512=${digestBase64}`;
@@ -96,13 +67,32 @@ const authorize = async (req) => {
   const signature = getSignature(req.headers);
   const created = getCreated(req.headers);
   const expires = getExpires(req.headers);
-  if (typeof signature === 'undefined') {
+  if (typeof signature === "undefined") {
     return false;
   }
   const msg = JSON.stringify(req.body);
   const publicKey = getPublicKey();
-  const signingString = await createSigningString(msg, created.toString(), expires.toString());
+  const signingString = await createSigningString(
+    msg,
+    created.toString(),
+    expires.toString()
+  );
   return verify(signingString, publicKey, signature);
+};
+
+const getAuthorizationHeader = (authorizationHeader) => {
+  logger.debug(`Authorization header: ${authorizationHeader}`);
+  const headerElements = authorizationHeader.split(",");
+  if (!headerElements || Object.keys(headerElements).length === 0) {
+    throw new Error("Header parsing failed");
+  }
+  const header = {};
+  for (let i = 0; i < headerElements.length; i++) {
+    const temp = headerElements[i].split("=");
+    header[temp[0]] = temp[1];
+  }
+  logger.debug(header);
+  return header;
 };
 
 export default {
