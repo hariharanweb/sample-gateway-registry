@@ -5,37 +5,31 @@ import LoggingService from '../services/LoggingService';
 const logger = LoggingService.getLogger();
 
 const getSignature = (headers) => {
-  const authorizationHeader = getAuthorizationHeader(
-    headers['x-gateway-authorization'],
+  const signaturePart = split_auth_header(
+    `${headers['x-gateway-authorization']}`,
   );
-  const leng = authorizationHeader.signature.length;
-  logger.debug(authorizationHeader.signature.slice(1, leng));
-  return authorizationHeader.signature.slice(1, leng);
+  return signaturePart.signature;
 };
 
 const getCreated = (headers) => {
-  const authorizationHeader = getAuthorizationHeader(
+  const signaturePart = split_auth_header(
     headers['x-gateway-authorization'],
   );
-  const leng = authorizationHeader.created.length;
-  logger.debug(authorizationHeader.created.slice(1, leng - 1));
-  return authorizationHeader.created.slice(1, leng - 1);
+  return signaturePart.created;
 };
 
 const getExpires = (headers) => {
-  const authorizationHeader = getAuthorizationHeader(
+  const signaturePart = split_auth_header(
     headers['x-gateway-authorization'],
   );
-  const leng = authorizationHeader.expires.length;
-  logger.debug(authorizationHeader.expires.slice(1, leng));
-  return authorizationHeader.expires.slice(1, leng - 1);
+  return signaturePart.expires;
 };
 
 const verify = (msg, publicKey, signature) => {
   const verification = sodium.crypto_sign_verify_detached(
-    sodium.to_base64(signature, sodium.base64_variants.ORIGINAL),
+    sodium.from_base64(signature, sodium.base64_variants.ORIGINAL),
     msg,
-    sodium.to_base64(publicKey, sodium.base64_variants.ORIGINAL),
+    sodium.from_base64(publicKey, sodium.base64_variants.ORIGINAL),
   );
   return verification;
 };
@@ -51,7 +45,7 @@ const getPublicKey = () => {
 
 const createSigningString = async (body, created, expires) => {
   await sodium.ready;
-  const digest = sodium.crypto_generichash(64, sodium.from_string(body));
+  const digest = sodium.crypto_generichash(64, sodium.from_string(JSON.stringify(body)));
   const digestBase64 = sodium.to_base64(
     digest,
     sodium.base64_variants.ORIGINAL,
@@ -69,12 +63,13 @@ const authorize = async (req) => {
     const created = getCreated(req.headers);
     const expires = getExpires(req.headers);
     if (typeof signature === 'undefined') {
-      return false;
+      logger.error('Empty Signature in Header from BAP');
+      // eslint-disable-next-line no-throw-literal
+      throw 'Signature Field is Empty';
     }
-    const msg = JSON.stringify(req.body);
     const publicKey = getPublicKey();
     const signingString = await createSigningString(
-      msg,
+      req.body,
       created.toString(),
       expires.toString(),
     );
@@ -85,19 +80,25 @@ const authorize = async (req) => {
   }
 };
 
-const getAuthorizationHeader = (authorizationHeader) => {
-  logger.debug(`Authorization header: ${authorizationHeader}`);
-  const headerElements = authorizationHeader.split(',');
-  if (!headerElements || Object.keys(headerElements).length === 0) {
-    throw new Error('Header parsing failed');
+const split_auth_header = (auth_header) => {
+  const header = auth_header.replace('Signature ', '');
+  const re = /\s*([^=]+)=([^,]+)[,]?/g;
+  let m;
+  const parts = {};
+  while ((m = re.exec(header)) !== null) {
+    if (m) {
+      parts[m[1]] = remove_quotes(m[2]);
+    }
   }
-  const header = {};
-  for (let i = 0; i < headerElements.length; i++) {
-    const temp = headerElements[i].split('=');
-    header[temp[0]] = temp[1];
+  return parts;
+};
+const remove_quotes = (value) => {
+  if (value.length >= 2
+    && value.charAt(0) == '"'
+    && value.charAt(value.length - 1) == '"') {
+    value = value.substring(1, value.length - 1);
   }
-  logger.debug(header);
-  return header;
+  return value;
 };
 
 export default {
