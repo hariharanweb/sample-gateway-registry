@@ -34,12 +34,12 @@ const verify = (msg, publicKey, signature) => {
   return verification;
 };
 
-const getPublicKey = () => {
-  const bapSubscriber = registry.filter(
-    (entry) => entry.subscriber_id === 'sample_mobility_bap',
+const getPublicKey = (user) => {
+  const subscriber = registry.filter(
+    (entry) => entry.subscriber_id === user,
   );
-  console.log(`bap subscriber ${JSON.stringify(bapSubscriber)}`);
-  const publicKey = `${bapSubscriber[0].signing_public_key}`;
+  console.log(`subscriber ${JSON.stringify(subscriber)}`);
+  const publicKey = `${subscriber[0].signing_public_key}`;
   return publicKey;
 };
 
@@ -56,7 +56,7 @@ digest: BLAKE-512=${digestBase64}`;
   return signingString;
 };
 
-const authorize = async (req) => {
+const authorize = async (req, user) => {
   try {
     logger.debug(`The request header is ${JSON.stringify(req.headers)}`);
     const signature = getSignature(req.headers);
@@ -67,7 +67,7 @@ const authorize = async (req) => {
       // eslint-disable-next-line no-throw-literal
       throw 'Signature Field is Empty';
     }
-    const publicKey = getPublicKey();
+    const publicKey = getPublicKey(user);
     const signingString = await createSigningString(
       req.body,
       created.toString(),

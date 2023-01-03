@@ -9,7 +9,7 @@ const search = (req, res) => {
   logger.debug(`Search called with ${JSON.stringify(req.body)}`);
 
   logger.debug('Before Authorize call');
-  auth.authorize(req).then((x) => {
+  auth.authorize(req, "sample_mobility_bap").then((x) => {
     logger.debug('On Fullfilled Promise of Authorize call');
     const bppSubscribers = registry.filter(
       (entry) => entry.status === 'SUBSCRIBED' && entry.type === 'BPP',
