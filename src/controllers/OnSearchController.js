@@ -12,7 +12,7 @@ const onSearch = async (req, res) => {
   authVerifier.authorize(req, publicKey).then(() => {
     logger.debug('Request Authorized Successfully.');
     const bapUrl = `${req.body.context.bap_uri}/on_search`;
-    Api.doPost(bapUrl, req.body);
+    Api.doPost(bapUrl, JSON.stringify(req.body));
     GenericResponse.sendAcknowledgement(res);
   }).catch((err) => {
     logger.debug(`Authorization Failed: ${err}`);
