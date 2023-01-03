@@ -15,7 +15,7 @@ const distributeRequestToBPP = (req) => {
     logger.debug(`Calling BPP ${bppSubscriber.subscriber_id}`);
     const url = `${bppSubscriber.subscriber_url}/search`;
 
-    Api.doPost(url, req.body);
+    Api.doPost(url, JSON.stringify(req.body));
   });
 };
 
