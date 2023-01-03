@@ -51,8 +51,8 @@ const createSigningString = async (body, created, expires) => {
     sodium.base64_variants.ORIGINAL,
   );
   const signingString = `(created): ${created}
-(expires): ${expires}
-digest: BLAKE-512=${digestBase64}`;
+  (expires): ${expires}
+  digest: BLAKE-512=${digestBase64}`;
   return signingString;
 };
 
