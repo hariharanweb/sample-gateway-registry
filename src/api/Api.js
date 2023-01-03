@@ -7,7 +7,7 @@ const doPost = async (url, body) => {
   logger.debug(`Posting to ${url} with Content ${JSON.stringify(body)}`);
 
   const signature = await createSignatureWithSodium(JSON.stringify(body));
-  console.log(`The signature is ${signature}`);
+  logger.debug(`The signature is ${signature}`);
 
   const gatewayAuthHeaderValue = createAuthorizationHeader(signature);
 
@@ -16,7 +16,10 @@ const doPost = async (url, body) => {
     {
       method: 'post',
       body: JSON.stringify(body),
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'X-Gateway-Authorization': gatewayAuthHeaderValue,
+        'Content-Type': 'application/json',
+      },
     },
   );
 };
