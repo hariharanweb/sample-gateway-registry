@@ -73,7 +73,12 @@ const authorize = async (req) => {
       created.toString(),
       expires.toString(),
     );
-    return verify(signingString, publicKey, signature);
+    const verification = verify(signingString, publicKey, signature);
+    if (verification) {
+      return verification;
+    }
+    // eslint-disable-next-line no-throw-literal
+    throw 'Verification Failed';
   } catch (err) {
     logger.error(`Error Triggered: ${err}`);
     throw err;
