@@ -1,29 +1,36 @@
 import Api from '../api/Api';
 import registry from '../registry/registry.json';
 import LoggingService from '../services/LoggingService';
-import Utils from '../utils/Utils';
-import auth from '../utils/auth';
+import authVerifier from '../utilities/SignVerify/AuthHeaderVerifier';
+import GenericResponse from './GenericResponse';
 
-const search = (req, res) => {
-  const logger = LoggingService.getLogger('Search');
+const logger = LoggingService.getLogger('Search');
+
+const distributeRequestToBPP = (req) => {
+  logger.debug('Distribute Request To BPP called.');
+  const bppSubscribers = registry.filter(
+    (entry) => entry.status === 'SUBSCRIBED' && entry.type === 'BPP',
+  );
+  bppSubscribers.forEach((bppSubscriber) => {
+    logger.debug(`Calling BPP ${bppSubscriber.subscriber_id}`);
+    const url = `${bppSubscriber.subscriber_url}/search`;
+
+    Api.doPost(url, req.body);
+  });
+};
+
+const search = async (req, res) => {
   logger.debug(`Search called with ${JSON.stringify(req.body)}`);
 
-  logger.debug('Before Authorize call');
-  auth.authorize(req, "sample_mobility_bap").then((x) => {
-    logger.debug('On Fullfilled Promise of Authorize call');
-    const bppSubscribers = registry.filter(
-      (entry) => entry.status === 'SUBSCRIBED' && entry.type === 'BPP',
-    );
-    bppSubscribers.forEach((bppSubscriber) => {
-      logger.debug(`Calling BPP ${bppSubscriber.subscriber_id}`);
-      const url = `${bppSubscriber.subscriber_url}/search`;
-
-      Api.doPost(url, req.body);
-    });
-    res.send(Utils.successfulAck);
+  // TODO 1 : Need to keep the subscriber Id dynamic
+  const publicKey = await GenericResponse.getPublicKey('sample_mobility_bap');
+  authVerifier.authorize(req, publicKey).then(() => {
+    logger.debug('Request Authorized Successfully.');
+    distributeRequestToBPP(req);
+    GenericResponse.sendAcknowledgement(res);
   }).catch((err) => {
-    logger.debug('On Rejected Promise of Authorize call');
-    res.status(401).send('Error');
+    logger.debug(`Authorization Failed: ${err}`);
+    GenericResponse.sendErrorWithAuthorization(res);
   });
 };
 
