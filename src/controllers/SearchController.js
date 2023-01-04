@@ -2,7 +2,8 @@ import Api from '../api/Api';
 import registry from '../registry/registry.json';
 import LoggingService from '../services/LoggingService';
 import authVerifier from '../utilities/SignVerify/AuthHeaderVerifier';
-import GenericResponse from './GenericResponse';
+import GenericResponse from '../utilities/GenericResponse';
+import LookUpService from '../services/LookUpService';
 
 const logger = LoggingService.getLogger('Search');
 
@@ -23,7 +24,7 @@ const search = async (req, res) => {
   logger.debug(`Search called with ${JSON.stringify(req.body)}`);
 
   // TODO 1 : Need to keep the subscriber Id dynamic
-  const publicKey = await GenericResponse.getPublicKey('sample_mobility_bap');
+  const publicKey = await LookUpService.getPublicKey('sample_mobility_bap');
   authVerifier.authorize(req, publicKey).then(() => {
     logger.debug('Request Authorized Successfully.');
     distributeRequestToBPP(req);
