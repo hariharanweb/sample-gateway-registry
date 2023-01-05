@@ -23,4 +23,5 @@ app.post('/lookup', LookupController.lookup);
 
 app.listen(port, () => {
   logger.info(`Gateway app listening on port ${port}`);
+
 });

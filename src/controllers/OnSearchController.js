@@ -1,13 +1,24 @@
 import Api from '../api/Api';
 import LoggingService from '../services/LoggingService';
-import Utils from '../utils/Utils';
+import authVerifier from '../utilities/SignVerify/AuthHeaderVerifier';
+import GenericResponse from '../utilities/GenericResponse';
+import LookUpService from '../services/LookUpService';
 
 const onSearch = async (req, res) => {
   const logger = LoggingService.getLogger('OnSearchController');
   logger.debug(`on_search called with ${JSON.stringify(req.body)}`);
-  const bapUrl = `${req.body.context.bap_uri}/on_search`;
-  await Api.doPost(bapUrl, req.body);
-  res.send(Utils.successfulAck);
+
+  // TODO 3 : need to make BPP generic enough
+  const publicKey = await LookUpService.getPublicKey('sample_mobility_bpp');
+  authVerifier.authorize(req, publicKey).then(() => {
+    logger.debug('Request Authorized Successfully.');
+    const bapUrl = `${req.body.context.bap_uri}/on_search`;
+    Api.doPost(bapUrl, JSON.stringify(req.body));
+    GenericResponse.sendAcknowledgement(res);
+  }).catch((err) => {
+    logger.debug(`Authorization Failed: ${err}`);
+    GenericResponse.sendErrorWithAuthorization(res);
+  });
 };
 
 export default {
