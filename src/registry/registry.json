@@ -2,7 +2,7 @@
     {
         "subscriber_id": "sample_mobility_bpp",
         "status": "SUBSCRIBED",
-        "ukId": "111-222-333",
+        "ukId": "111-222-300",
         "subscriber_url": "http://localhost:3010",
         "country": "IND",
         "domain": "mobility",
@@ -19,7 +19,7 @@
     {
         "subscriber_id": "sample_mobility_bap",
         "status": "SUBSCRIBED",
-        "ukId": "111-222-333",
+        "ukId": "111-222-301",
         "subscriber_url": "http://localhost:2010",
         "country": "IND",
         "domain": "mobility",
@@ -36,7 +36,7 @@
     {
         "subscriber_id": "Gateway",
         "status": "SUBSCRIBED",
-        "ukId": "111-222-333",
+        "ukId": "111-222-303",
         "subscriber_url": "http://localhost:1010",
         "country": "IND",
         "domain": "mobility",
