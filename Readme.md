@@ -11,8 +11,8 @@
 
 ## Running Gateway and Registry locally
 
-- Run `npm start`
-- To run in watch mode `npm run watch`
+- Run `yarn start`
+- To run in watch mode `yarn run watch`
 
 ## Running Gateway and Registry as Docker
 
