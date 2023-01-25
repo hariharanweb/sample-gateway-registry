@@ -13,6 +13,17 @@ const getPublicKey = async (subscriberId) => {
   return publicKey;
 };
 
+const getPublicKeyWithUkId = async (ukId) => {
+  const subscriber = registry.filter(
+    (entry) => entry.ukId === ukId,
+  );
+  logger.debug(`subscriber ${JSON.stringify(subscriber)}`);
+  const publicKey = `${subscriber[0].signing_public_key}`;
+  logger.debug(`public Key: ${publicKey}`);
+  return publicKey;
+};
+
 export default {
   getPublicKey,
+  getPublicKeyWithUkId,
 };
