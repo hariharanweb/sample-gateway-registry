@@ -9,7 +9,7 @@ const onSearch = async (req, res) => {
   logger.debug(`on_search called with ${JSON.stringify(req.body)}`);
 
   // TODO 3 : need to make BPP generic enough
-  const publicKey = await LookUpService.getPublicKeyWithUkId(req.body.context.bpp_id);
+  const publicKey = await LookUpService.getPublicKey(req.body.context.bpp_id);
   authVerifier.authorize(req, publicKey).then(() => {
     logger.debug('Request Authorized Successfully.');
     const bapUrl = `${req.body.context.bap_uri}/on_search`;
