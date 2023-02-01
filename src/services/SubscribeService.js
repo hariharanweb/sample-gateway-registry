@@ -11,7 +11,7 @@ dotenv.config();
 
 const logger = LoggingService.getLogger('SubscribeService');
 
-const addDataInRegistory = () => {
+const generateUpdatedRegistryData = () => {
   const registryArray = [];
   Object.values(data)[0].forEach((element) => {
     registryArray.push(element);
@@ -33,6 +33,10 @@ const addDataInRegistory = () => {
     br_id: '111-222-333',
     city: process.env.NETWORK_PARTICIPANT_CITY_CODE,
   });
+  return registryArray;
+}
+
+const insertDataIntoRegistryJson = (registryArray) => {
   const updatedData = JSON.stringify(registryArray);
   const filename = fileURLToPath(import.meta.url);
 
@@ -43,6 +47,11 @@ const addDataInRegistory = () => {
   fs.writeFileSync(registryFilePath, updatedData);
   /* eslint-disable no-console */
   console.log(updatedData);
+}
+
+const addDataInRegistory = () => {
+  const updatedRegistryArray = generateUpdatedRegistryData();
+  insertDataIntoRegistryJson(updatedRegistryArray);
 };
 
 const handlingAcknowledgment = async () => {
