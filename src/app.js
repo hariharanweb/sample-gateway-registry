@@ -2,6 +2,7 @@ import express from 'express';
 import LookupController from './controllers/LookupController.js';
 import OnSearchController from './controllers/OnSearchController.js';
 import SearchController from './controllers/SearchController.js';
+import SubscribeController from './controllers/SubscribeController.js';
 import LoggingService from './services/LoggingService.js';
 
 const app = express();
@@ -18,6 +19,8 @@ app.get('/', (req, res) => {
 
 app.post('/search', SearchController.search);
 app.post('/on_search', OnSearchController.onSearch);
+
+app.post('/subscribe', SubscribeController.subscribe);
 
 app.post('/lookup', LookupController.lookup);
 
