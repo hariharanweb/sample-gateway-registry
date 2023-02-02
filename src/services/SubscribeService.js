@@ -34,7 +34,7 @@ const generateUpdatedRegistryData = () => {
     city: process.env.NETWORK_PARTICIPANT_CITY_CODE,
   });
   return registryArray;
-}
+};
 
 const insertDataIntoRegistryJson = (registryArray) => {
   const updatedData = JSON.stringify(registryArray);
@@ -47,7 +47,7 @@ const insertDataIntoRegistryJson = (registryArray) => {
   fs.writeFileSync(registryFilePath, updatedData);
   /* eslint-disable no-console */
   console.log(updatedData);
-}
+};
 
 const addDataInRegistory = () => {
   const updatedRegistryArray = generateUpdatedRegistryData();
