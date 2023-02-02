@@ -12,7 +12,6 @@ dotenv.config();
 const logger = LoggingService.getLogger('SubscribeService');
 
 const generateModifiedRegistryData = (req, subscriberId, createdAt) => {
-  logger.debug(registry);
   const generateRegistry = [];
   Object.values(registry).forEach((element) => {
     if (element.subscriber_id !== subscriberId) generateRegistry.push(element);
@@ -88,10 +87,8 @@ const subscribe = async (req) => {
 
   );
 
-  logger.debug(req);
-
   /* eslint-disable max-len */
-  const updatedRegistryArray = bapSubscriber ? generateModifiedRegistryData(req, bapSubscriber[0].subscriber_id, bapSubscriber[0].created) : generateUpdatedRegistryData(req);
+  const updatedRegistryArray = bapSubscriber.length !== 0 ? generateModifiedRegistryData(req, bapSubscriber[0].subscriber_id, bapSubscriber[0].created) : generateUpdatedRegistryData(req);
 
   insertDataIntoRegistryJson(updatedRegistryArray);
   handlingAcknowledgment();
