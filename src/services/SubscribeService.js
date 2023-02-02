@@ -2,38 +2,64 @@ import * as dotenv from 'dotenv';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import moment from 'moment';
 import Api from '../api/Api';
 import LoggingService from './LoggingService';
 import * as data from '../registry/registry.json';
+import registry from '../registry/registry.json';
 
 dotenv.config();
 
 const logger = LoggingService.getLogger('SubscribeService');
 
-const generateUpdatedRegistryData = () => {
-  const registryArray = [];
-  Object.values(data)[0].forEach((element) => {
-    registryArray.push(element);
+const generateModifiedRegistryData = (req, subscriberId, createdAt) => {
+  logger.debug(registry);
+  const generateRegistry = [];
+  Object.values(registry).forEach((element) => {
+    if (element.subscriber_id !== subscriberId) generateRegistry.push(element);
   });
-  registryArray.push({
-    subscriber_id: process.env.SUBSCRIBER_ID,
+  generateRegistry.push({
+    subscriber_id: req.entity.subscriber_id,
     status: 'SUBSCRIBED',
-    ukId: '111-222-299',
-    subscriber_url: 'http://localhost:4010',
-    country: process.env.COUNTRY,
-    domain: 'mobility',
-    valid_from: process.env.VALID_FROM,
-    valid_until: process.env.VALID_UNTIL,
-    type: process.env.NETWORK_PARTICIPANT_TYPE,
-    signing_public_key: process.env.PUBLIC_KEY,
-    encr_public_key: '',
-    created: '2022-08-08T16:19:25.717Z',
-    updated: moment().format(),
-    br_id: '111-222-333',
-    city: process.env.NETWORK_PARTICIPANT_CITY_CODE,
+    ukId: req.entity.unique_key_id,
+    subscriber_url: req.network_participant[0].subscriber_url,
+    country: req.entity.country,
+    domain: req.network_participant[0].domain,
+    valid_from: req.entity.key_pair.valid_from,
+    valid_until: req.entity.key_pair.valid_until,
+    type: req.network_participant[0].type,
+    signing_public_key: req.entity.key_pair.signing_public_key,
+    encr_public_key: req.entity.key_pair.encryption_public_key,
+    created: createdAt,
+    updated: req.timestamp,
+    br_id: req.request_id,
+    city: req.entity.gst.city_code[0],
   });
-  return registryArray;
+  return generateRegistry;
+};
+
+const generateUpdatedRegistryData = (req) => {
+  const generateRegistry = [];
+  Object.values(data)[0].forEach((element) => {
+    generateRegistry.push(element);
+  });
+  generateRegistry.push({
+    subscriber_id: req.entity.subscriber_id,
+    status: 'SUBSCRIBED',
+    ukId: req.entity.unique_key_id,
+    subscriber_url: req.network_participant[0].subscriber_url,
+    country: req.entity.country,
+    domain: req.network_participant[0].domain,
+    valid_from: req.entity.key_pair.valid_from,
+    valid_until: req.entity.key_pair.valid_until,
+    type: req.network_participant[0].type,
+    signing_public_key: req.entity.key_pair.signing_public_key,
+    encr_public_key: req.entity.key_pair.encryption_public_key,
+    created: req.timestamp,
+    updated: req.timestamp,
+    br_id: req.request_id,
+    city: req.entity.gst.city_code[0],
+  });
+  return generateRegistry;
 };
 
 const insertDataIntoRegistryJson = (registryArray) => {
@@ -41,17 +67,8 @@ const insertDataIntoRegistryJson = (registryArray) => {
   const filename = fileURLToPath(import.meta.url);
 
   const dirname = path.dirname(filename);
-  /* eslint-disable no-console */
   const registryFilePath = path.join(dirname, '../registry/registry.json');
-  console.log(registryFilePath);
   fs.writeFileSync(registryFilePath, updatedData);
-  /* eslint-disable no-console */
-  console.log(updatedData);
-};
-
-const addDataInRegistory = () => {
-  const updatedRegistryArray = generateUpdatedRegistryData();
-  insertDataIntoRegistryJson(updatedRegistryArray);
 };
 
 const handlingAcknowledgment = async () => {
@@ -65,8 +82,18 @@ const handlingAcknowledgment = async () => {
   logger.debug('Success');
 };
 
-const subscribe = async () => {
-  addDataInRegistory();
+const subscribe = async (req) => {
+  const bapSubscriber = registry.filter(
+    (entry) => entry.subscriber_id === req.entity.subscriber_id,
+
+  );
+
+  logger.debug(req);
+
+  /* eslint-disable max-len */
+  const updatedRegistryArray = bapSubscriber ? generateModifiedRegistryData(req, bapSubscriber[0].subscriber_id, bapSubscriber[0].created) : generateUpdatedRegistryData(req);
+
+  insertDataIntoRegistryJson(updatedRegistryArray);
   handlingAcknowledgment();
 };
 
