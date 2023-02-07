@@ -4,7 +4,6 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 
 const getRegisteredSellerApps = (context) => {
-  // const registry = require('../registry/registry.json')
   const filename = fileURLToPath(import.meta.url);
 
   const dirname = path.dirname(filename);
@@ -14,19 +13,16 @@ const getRegisteredSellerApps = (context) => {
   return matchingSellerApps;
 };
 
-const getRegistry = (filter) => {
-  // const registry = require('../registry/registry.json')
+const getRegistry = () => {
   const filename = fileURLToPath(import.meta.url);
 
   const dirname = path.dirname(filename);
   const registryFilePath = path.join(dirname, '../registry/registry.json');
 
-  const value = fs.readFileSync(registryFilePath, { encoding: 'utf8', flag: 'r' });
-  // console.log('hereee');
-  // console.log(value);
-  const result = _.filter(value, filter);
-  return result.replace('//', '');
+  const value = fs.readFileSync(registryFilePath, { encoding: 'utf8' });
+  return value;
 };
+
 export default {
   getRegisteredSellerApps,
   getRegistry,
