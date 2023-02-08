@@ -3,7 +3,6 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
-
 const getRegistry = (filter) => {
   const filename = fileURLToPath(import.meta.url);
 
