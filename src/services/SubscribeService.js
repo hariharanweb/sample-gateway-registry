@@ -5,7 +5,7 @@ import { fileURLToPath } from 'url';
 import Api from '../api/Api';
 import LoggingService from './LoggingService';
 import * as data from '../registry/registry.json';
-import registry from '../registry/registry.json';
+import RegistryService from './RegistryService';
 
 dotenv.config();
 
@@ -13,7 +13,7 @@ const logger = LoggingService.getLogger('SubscribeService');
 
 const generateModifiedRegistryData = (req, subscriberId, createdAt) => {
   const generateRegistry = [];
-  Object.values(registry).forEach((element) => {
+  Object.values(RegistryService.getRegistry()).forEach((element) => {
     if (element.subscriber_id !== subscriberId) generateRegistry.push(element);
   });
   generateRegistry.push({
@@ -82,7 +82,7 @@ const handlingAcknowledgment = async () => {
 };
 
 const subscribe = async (req) => {
-  const bapSubscriber = registry.filter(
+  const bapSubscriber = RegistryService.getRegistry().filter(
     (entry) => entry.subscriber_id === req.entity.subscriber_id,
 
   );
