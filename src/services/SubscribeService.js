@@ -4,7 +4,6 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import Api from '../api/Api';
 import LoggingService from './LoggingService';
-import * as data from '../registry/registry.json';
 import RegistryService from './RegistryService';
 
 dotenv.config();
@@ -38,7 +37,7 @@ const generateModifiedRegistryData = (req, subscriberId, createdAt) => {
 
 const generateUpdatedRegistryData = (req) => {
   const generateRegistry = [];
-  Object.values(data)[0].forEach((element) => {
+  Object.values(RegistryService.getRegistry())[0].forEach((element) => {
     generateRegistry.push(element);
   });
   generateRegistry.push({
