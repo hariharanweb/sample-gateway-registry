@@ -1,15 +1,15 @@
 import Api from '../api/Api';
-import registry from '../registry/registry.json';
 import LoggingService from '../services/LoggingService';
 import authVerifier from '../utilities/SignVerify/AuthHeaderVerifier';
 import GenericResponse from '../utilities/GenericResponse';
 import LookUpService from '../services/LookUpService';
+import RegistryService from '../services/RegistryService';
 
 const logger = LoggingService.getLogger('Search');
 
 const distributeRequestToBPP = (req) => {
   logger.debug('Distribute Request To BPP called.');
-  const bppSubscribers = registry.filter(
+  const bppSubscribers = RegistryService.getRegistry().filter(
     (entry) => entry.status === 'SUBSCRIBED' && entry.type === 'BPP',
   );
   bppSubscribers.forEach((bppSubscriber) => {

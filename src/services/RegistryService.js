@@ -3,27 +3,18 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
-const getRegisteredSellerApps = (context) => {
-  const filename = fileURLToPath(import.meta.url);
 
-  const dirname = path.dirname(filename);
-  const registryFilePath = path.join(dirname, '../registry/registry.json');
-  fs.readFileSync(registryFilePath);
-  const matchingSellerApps = _.filter(registryFilePath, { domain: context.domain });
-  return matchingSellerApps;
-};
-
-const getRegistry = () => {
+const getRegistry = (filter) => {
   const filename = fileURLToPath(import.meta.url);
 
   const dirname = path.dirname(filename);
   const registryFilePath = path.join(dirname, '../registry/registry.json');
 
   const value = fs.readFileSync(registryFilePath, { encoding: 'utf8' });
-  return value;
+  const registry = JSON.parse(value);
+  return _.filter(registry, filter);
 };
 
 export default {
-  getRegisteredSellerApps,
   getRegistry,
 };

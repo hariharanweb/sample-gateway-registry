@@ -1,10 +1,10 @@
-import registry from '../registry/registry.json';
 import LoggingService from './LoggingService';
+import RegistryService from './RegistryService';
 
 const logger = LoggingService.getLogger('LookUpService');
 
 const getPublicKey = async (subscriberId) => {
-  const subscriber = registry.filter(
+  const subscriber = RegistryService.getRegistry().filter(
     (entry) => entry.subscriber_id === subscriberId,
   );
   logger.debug(`subscriber ${JSON.stringify(subscriber)}`);
