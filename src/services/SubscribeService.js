@@ -4,7 +4,6 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import Api from '../api/Api';
 import LoggingService from './LoggingService';
-import registry from '../registry/registry.json';
 import RegistryService from './RegistryService';
 
 dotenv.config();
@@ -13,7 +12,7 @@ const logger = LoggingService.getLogger('SubscribeService');
 
 const generateModifiedRegistryData = (req, subscriberId, createdAt) => {
   const generateRegistry = [];
-  Object.values(registry).forEach((element) => {
+  Object.values(RegistryService.getRegistry()).forEach((element) => {
     if (element.subscriber_id !== subscriberId) generateRegistry.push(element);
   });
   generateRegistry.push({
@@ -82,13 +81,14 @@ const handlingAcknowledgment = async () => {
 };
 
 const subscribe = async (req) => {
-  logger.debug(`the subscriber id is: ${req.entity.subscriber_id}`);
   const bapSubscriber = RegistryService.getRegistry().filter(
     (entry) => entry.subscriber_id === req.entity.subscriber_id,
+
   );
 
-  /* eslint-disable max-len */
-  const updatedRegistryArray = bapSubscriber.length !== 0 ? generateModifiedRegistryData(req, bapSubscriber[0].subscriber_id, bapSubscriber[0].created) : generateUpdatedRegistryData(req);
+  const updatedRegistryArray = bapSubscriber.length !== 0
+    ? generateModifiedRegistryData(req, bapSubscriber[0].subscriber_id, bapSubscriber[0].created)
+    : generateUpdatedRegistryData(req);
 
   insertDataIntoRegistryJson(updatedRegistryArray);
   handlingAcknowledgment();
