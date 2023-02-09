@@ -1,15 +1,15 @@
 import Api from '../api/Api';
-import registry from '../registry/registry.json';
 import LoggingService from '../services/LoggingService';
 import authVerifier from '../utilities/SignVerify/AuthHeaderVerifier';
 import GenericResponse from '../utilities/GenericResponse';
 import LookUpService from '../services/LookUpService';
+import RegistryService from '../services/RegistryService';
 
 const logger = LoggingService.getLogger('Search');
 
 const distributeRequestToBPP = (req) => {
   logger.debug('Distribute Request To BPP called.');
-  const bppSubscribers = registry.filter(
+  const bppSubscribers = RegistryService.getRegistry().filter(
     (entry) => entry.status === 'SUBSCRIBED' && entry.type === 'BPP',
   );
   bppSubscribers.forEach((bppSubscriber) => {
@@ -23,8 +23,7 @@ const distributeRequestToBPP = (req) => {
 const search = async (req, res) => {
   logger.debug(`Search called with ${JSON.stringify(req.body)}`);
 
-  // TODO 1 : Need to keep the subscriber Id dynamic
-  const publicKey = await LookUpService.getPublicKey('sample_mobility_bap');
+  const publicKey = await LookUpService.getPublicKey(req.body.context.bap_id);
   authVerifier.authorize(req, publicKey).then(() => {
     logger.debug('Request Authorized Successfully.');
     distributeRequestToBPP(req);

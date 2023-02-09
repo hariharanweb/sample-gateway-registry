@@ -1,13 +1,19 @@
 import _ from 'lodash';
-import registry from '../registry/registry.json';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
-const getRegisteredSellerApps = (context) => {
-  const matchingSellerApps = _.filter(registry, { domain: context.domain });
-  return matchingSellerApps;
+const getRegistry = (filter) => {
+  const filename = fileURLToPath(import.meta.url);
+
+  const dirname = path.dirname(filename);
+  const registryFilePath = path.join(dirname, '../registry/registry.json');
+
+  const value = fs.readFileSync(registryFilePath, { encoding: 'utf8' });
+  const registry = JSON.parse(value);
+  return _.filter(registry, filter);
 };
 
-const getRegistry = (filter) => _.filter(registry, filter);
 export default {
-  getRegisteredSellerApps,
   getRegistry,
 };
