@@ -23,8 +23,7 @@ const distributeRequestToBPP = (req) => {
 const search = async (req, res) => {
   logger.debug(`Search called with ${JSON.stringify(req.body)}`);
 
-  // TODO 1 : Need to keep the subscriber Id dynamic
-  const publicKey = await LookUpService.getPublicKey('sample_mobility_bap');
+  const publicKey = await LookUpService.getPublicKey(req.body.context.bap_id);
   authVerifier.authorize(req, publicKey).then(() => {
     logger.debug('Request Authorized Successfully.');
     distributeRequestToBPP(req);
