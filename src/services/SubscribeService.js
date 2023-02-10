@@ -5,6 +5,7 @@ import { fileURLToPath } from 'url';
 import Api from '../api/Api';
 import LoggingService from './LoggingService';
 import RegistryService from './RegistryService';
+import VerifyService from './VerifyService';
 
 dotenv.config();
 
@@ -91,6 +92,8 @@ const subscribe = async (req) => {
     : generateUpdatedRegistryData(req);
 
   insertDataIntoRegistryJson(updatedRegistryArray);
+
+  VerifyService.verifySubscribe(req);
   handlingAcknowledgment();
 };
 
