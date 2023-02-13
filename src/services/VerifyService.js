@@ -6,8 +6,6 @@ const logger = LoggingService.getLogger('VerifyService');
 
 const verifySubscribe = async (req) => {
   try {
-    logger.debug(req.request_id);
-    logger.debug(req.entity.key_pair.signing_public_key);
     const response = Api.doGet(`${req.network_participant[0].subscriber_url}/ondc-site-verification.html`);
 
     const keyInitRegex = "content='";
