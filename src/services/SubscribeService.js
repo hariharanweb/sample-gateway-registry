@@ -93,7 +93,7 @@ const subscribe = async (req) => {
 
   insertDataIntoRegistryJson(updatedRegistryArray);
 
-  VerifyService.verifySubscribe(req);
+  await VerifyService.verifySubscribe(req);
   handlingAcknowledgment();
 };
 

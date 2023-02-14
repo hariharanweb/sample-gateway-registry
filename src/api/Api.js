@@ -29,7 +29,8 @@ const doGet = async (url) => {
   logger.debug(`Going to ${url}`);
 
   const response = await fetch(url);
-  return response;
+  const data = await response.text();
+  return data;
 };
 
 export default {
