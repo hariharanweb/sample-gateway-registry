@@ -18,13 +18,13 @@ const fetchSignatureContent = (responseFromUrl) => {
   return signatureKey;
 };
 
-const verifySubscribe = async (req) => {
+const verifySubscribe = async (subscriberUrl, requestId, signingPublicKey) => {
   try {
-    const responseFromUrl = await Api.doGet(`${req.network_participant[0].subscriber_url}/ondc-site-verification.html`);
+    const responseFromUrl = await Api.doGet(`${subscriberUrl}/ondc-site-verification.html`);
     const signatureKey = fetchSignatureContent(responseFromUrl);
 
     if (SignatureHelper
-      .verify(req.request_id, req.entity.key_pair.signing_public_key, signatureKey)) {
+      .verify(requestId, signingPublicKey, signatureKey)) {
       logger.debug('Sucessfully Verified');
       return;
     }
