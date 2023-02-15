@@ -18,7 +18,7 @@ const fetchSignatureContent = (responseFromUrl) => {
   return signatureKey;
 };
 
-const verifySubscribe = async (subscriberUrl, requestId, signingPublicKey) => {
+const verifySubscribe = async (requestId, subscriberUrl, signingPublicKey) => {
   try {
     const responseFromUrl = await Api.doGet(`${subscriberUrl}/ondc-site-verification.html`);
     const signatureKey = fetchSignatureContent(responseFromUrl);

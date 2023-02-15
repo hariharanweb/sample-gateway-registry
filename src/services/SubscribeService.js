@@ -96,7 +96,7 @@ const subscribe = async (req) => {
   const subscribeUrl = req.network_participant[0].subscriber_url;
   const requestId = req.request_id;
   const signingPublicKey = req.entity.key_pair.signing_public_key;
-  await VerifyService.verifySubscribe(subscribeUrl, requestId, signingPublicKey);
+  await VerifyService.verifySubscribe(requestId, subscribeUrl, signingPublicKey);
   handlingAcknowledgment();
 };
 
