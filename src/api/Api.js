@@ -24,6 +24,16 @@ const doPost = async (url, body) => {
   );
 };
 
+const doGet = async (url) => {
+  const logger = LoggingService.getLogger('API');
+  logger.debug(`Going to ${url}`);
+
+  const response = await fetch(url);
+  const data = await response.text();
+  return data;
+};
+
 export default {
   doPost,
+  doGet,
 };

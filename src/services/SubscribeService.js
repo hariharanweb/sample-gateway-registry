@@ -5,6 +5,7 @@ import { fileURLToPath } from 'url';
 import Api from '../api/Api';
 import LoggingService from './LoggingService';
 import RegistryService from './RegistryService';
+import VerifyService from './VerifyService';
 
 dotenv.config();
 
@@ -69,8 +70,8 @@ const insertDataIntoRegistryJson = (registryArray) => {
   fs.writeFileSync(registryFilePath, updatedData);
 };
 
-const handlingAcknowledgment = async () => {
-  const url = `${process.env.BUYER_APP_URL}/on_subscribe`;
+const handlingAcknowledgment = async (subscribeUrl) => {
+  const url = `${subscribeUrl}/on_subscribe`;
   const status = {
     status: 'Success',
   };
@@ -91,7 +92,12 @@ const subscribe = async (req) => {
     : generateUpdatedRegistryData(req);
 
   insertDataIntoRegistryJson(updatedRegistryArray);
-  handlingAcknowledgment();
+
+  const subscribeUrl = req.network_participant[0].subscriber_url;
+  const requestId = req.request_id;
+  const signingPublicKey = req.entity.key_pair.signing_public_key;
+  await VerifyService.verifySubscribe(requestId, subscribeUrl, signingPublicKey);
+  handlingAcknowledgment(subscribeUrl);
 };
 
 export default {
