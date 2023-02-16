@@ -70,8 +70,8 @@ const insertDataIntoRegistryJson = (registryArray) => {
   fs.writeFileSync(registryFilePath, updatedData);
 };
 
-const handlingAcknowledgment = async () => {
-  const url = `${process.env.BUYER_APP_URL}/on_subscribe`;
+const handlingAcknowledgment = async (subscribeUrl) => {
+  const url = `${subscribeUrl}/on_subscribe`;
   const status = {
     status: 'Success',
   };
@@ -97,7 +97,7 @@ const subscribe = async (req) => {
   const requestId = req.request_id;
   const signingPublicKey = req.entity.key_pair.signing_public_key;
   await VerifyService.verifySubscribe(requestId, subscribeUrl, signingPublicKey);
-  handlingAcknowledgment();
+  handlingAcknowledgment(subscribeUrl);
 };
 
 export default {
