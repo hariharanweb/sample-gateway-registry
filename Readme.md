@@ -11,6 +11,7 @@
 
 ## Running Gateway and Registry locally
 
+- Copy local.env to .env
 - Run `yarn start`
 - To run in watch mode `yarn run watch`
 
