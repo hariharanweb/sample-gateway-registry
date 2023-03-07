@@ -20,3 +20,9 @@
 - Build image `docker build -t sample-gateway-registry:latest .`
 - Run the container `docker run -p 1010:1010 --name sample-gateway-registry -d sample-gateway-registry:latest`
 - Check the logs `docker logs -f sample-gateway-registry`
+
+## Node
+- Use node version >=14
+- nvm install 14.21.2
+
+
