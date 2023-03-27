@@ -8,7 +8,7 @@ import LoggingService from './services/LoggingService.js';
 const app = express();
 const logger = LoggingService.getLogger();
 logger.level = process.env.LOG_LEVEL ? process.env.LOG_LEVEL : 'debug';
-const port = process.env.GATEWAY_PORT ? process.env.GATEWAY_PORT : 1010;
+const port = process.env.PORT ? process.env.PORT : 1010;
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));

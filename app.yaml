@@ -1,0 +1,6 @@
+runtime: nodejs14
+env: standard
+instance_class: F1
+service: registry
+env_variables:
+  BUYER_APP_URL: "https://buyerapp-dot-test-sample-381704.el.r.appspot.com"
